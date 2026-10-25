@@ -28,20 +28,25 @@ import com.brainrot.android.dev.ui.theme.StopScrollingTheme
 class MainActivity : ComponentActivity() {
     private val repository: ReelRepository
         get() = (application as DevApp).reelRepository
+    private var accessibilityEnabled by mutableStateOf(false)
+    private var overlayEnabled by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        refreshReadiness()
         setContent {
             StopScrollingTheme {
                 BrainPalApp(
                     repository = repository,
-                    accessibilityEnabled = SettingsIntents.isAccessibilityEnabled(this),
-                    overlayEnabled = SettingsIntents.canDrawOverlays(this),
+                    accessibilityEnabled = accessibilityEnabled,
+                    overlayEnabled = overlayEnabled,
                     onOpenAccessibility = { startActivity(SettingsIntents.accessibilitySettings()) },
                     onOpenOverlay = { startActivity(SettingsIntents.overlaySettings(this)) },
                     onShowOverlay = { OverlayManager.show(this) },
                     onClearData = { repository.clearAll(this) },
+                    onGenerateDemo = { repository.generateThirtyDayDemo(this) },
+                    onClearDemo = { repository.clearDemoData(this) },
                 )
             }
         }
@@ -49,10 +54,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (SettingsIntents.canDrawOverlays(this)) {
+        refreshReadiness()
+        if (overlayEnabled) {
             OverlayManager.show(this)
             repository.refreshOverlay(this)
         }
+    }
+
+    private fun refreshReadiness() {
+        accessibilityEnabled = SettingsIntents.isAccessibilityEnabled(this)
+        overlayEnabled = SettingsIntents.canDrawOverlays(this)
+        repository.updateTrackingReadiness(
+            accessibilityEnabled = accessibilityEnabled,
+            overlayEnabled = overlayEnabled,
+        )
     }
 }
 
@@ -71,6 +86,8 @@ private fun BrainPalApp(
     onOpenOverlay: () -> Unit,
     onShowOverlay: () -> Unit,
     onClearData: () -> Unit,
+    onGenerateDemo: () -> Unit,
+    onClearDemo: () -> Unit,
 ) {
     var tab by rememberSaveable { mutableStateOf(Tab.Today) }
 
@@ -100,9 +117,18 @@ private fun BrainPalApp(
     ) { padding ->
         val modifier = Modifier.padding(padding)
         when (tab) {
-            Tab.Today -> TodayScreen(repository = repository, modifier = modifier)
-            Tab.Analytics -> AnalyticsScreen(repository = repository, modifier = modifier)
+            Tab.Today -> TodayScreen(
+                repository = repository,
+                onOpenSetup = { tab = Tab.Settings },
+                modifier = modifier,
+            )
+            Tab.Analytics -> AnalyticsScreen(
+                repository = repository,
+                onOpenSetup = { tab = Tab.Settings },
+                modifier = modifier,
+            )
             Tab.Settings -> SettingsScreen(
+                repository = repository,
                 modifier = modifier,
                 accessibilityEnabled = accessibilityEnabled,
                 overlayEnabled = overlayEnabled,
@@ -110,6 +136,8 @@ private fun BrainPalApp(
                 onOpenOverlay = onOpenOverlay,
                 onShowOverlay = onShowOverlay,
                 onClearData = onClearData,
+                onGenerateDemo = onGenerateDemo,
+                onClearDemo = onClearDemo,
             )
         }
     }

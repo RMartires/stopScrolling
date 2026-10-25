@@ -1,51 +1,134 @@
 package com.brainrot.android.dev.ui.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.brainrot.android.dev.R
 
-val PurpleDeep = Color(0xFF1A1028)
-val PurpleSurface = Color(0xFF261736)
-val PurpleCard = Color(0xFF322044)
-val AccentOrange = Color(0xFFFF8A5B)
-val AccentLilac = Color(0xFFB794F6)
-val TextMuted = Color(0xFFBCA8D6)
+val Background = Color(0xFF120A1D)
+val Surface = Color(0xFF1D122B)
+val SurfaceRaised = Color(0xFF29193B)
+val AccentOrange = Color(0xFFFF9A62)
+val AccentLilac = Color(0xFFBCA1F5)
+val TextPrimary = Color(0xFFFAF4FF)
+val TextMuted = Color(0xFFCDBFE0)
+val Outline = Color(0xFF554268)
+val Success = Color(0xFF71D6A0)
+val Warning = Color(0xFFFFC36B)
+val Error = Color(0xFFFF8E82)
 
 private val DarkColors = darkColorScheme(
     primary = AccentOrange,
-    onPrimary = PurpleDeep,
+    onPrimary = Background,
     secondary = AccentLilac,
-    onSecondary = PurpleDeep,
-    background = PurpleDeep,
-    onBackground = Color(0xFFF6EEFF),
-    surface = PurpleSurface,
-    onSurface = Color(0xFFF6EEFF),
-    surfaceVariant = PurpleCard,
+    onSecondary = Background,
+    background = Background,
+    onBackground = TextPrimary,
+    surface = Surface,
+    onSurface = TextPrimary,
+    surfaceVariant = SurfaceRaised,
     onSurfaceVariant = TextMuted,
-    outline = Color(0xFF4E3A66),
+    outline = Outline,
+    error = Error,
+    onError = Background,
 )
 
-private val LightColors = lightColorScheme(
-    primary = Color(0xFF6D28D9),
-    onPrimary = Color.White,
-    secondary = AccentOrange,
-    background = Color(0xFFF8F5FF),
-    onBackground = PurpleDeep,
-    surface = Color.White,
-    onSurface = PurpleDeep,
-    surfaceVariant = Color(0xFFEDE6FA),
-    onSurfaceVariant = Color(0xFF5B4A72),
+private val Manrope = FontFamily(
+    Font(R.font.manrope, FontWeight.Normal),
+    Font(R.font.manrope, FontWeight.Medium),
+    Font(R.font.manrope, FontWeight.SemiBold),
+    Font(R.font.manrope, FontWeight.Bold),
+    Font(R.font.manrope, FontWeight.ExtraBold),
+)
+
+private val BrainPalTypography = Typography(
+    displayLarge = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 64.sp,
+        lineHeight = 68.sp,
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp,
+        lineHeight = 34.sp,
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        lineHeight = 30.sp,
+    ),
+    titleLarge = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
+        lineHeight = 26.sp,
+    ),
+    titleMedium = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 22.sp,
+    ),
+    bodySmall = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+    ),
+    labelLarge = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+    ),
+    labelMedium = TextStyle(
+        fontFamily = Manrope,
+        fontWeight = FontWeight.Medium,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+    ),
+)
+
+private val BrainPalShapes = Shapes(
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(20.dp),
+    extraLarge = RoundedCornerShape(24.dp),
 )
 
 @Composable
 fun StopScrollingTheme(
-    darkTheme: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(
-        colorScheme = if (darkTheme) DarkColors else LightColors,
+        colorScheme = DarkColors,
+        typography = BrainPalTypography,
+        shapes = BrainPalShapes,
         content = content,
     )
 }
