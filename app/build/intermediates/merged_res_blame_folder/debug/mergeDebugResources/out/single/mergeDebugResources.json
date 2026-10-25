@@ -6,5 +6,9 @@
     {
         "merged": "com.brainrot.android.dev.app-debug-4:/drawable_ic_launcher.xml.flat",
         "source": "com.brainrot.android.dev.app-main-6:/drawable/ic_launcher.xml"
+    },
+    {
+        "merged": "com.brainrot.android.dev.app-debug-4:/font_manrope.ttf.flat",
+        "source": "com.brainrot.android.dev.app-main-6:/font/manrope.ttf"
     }
 ]

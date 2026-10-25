@@ -31,17 +31,19 @@ public final class ReelDatabase_Impl extends ReelDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `daily_app_reels` (`statsDate` TEXT NOT NULL, `appId` TEXT NOT NULL, `count` INTEGER NOT NULL, PRIMARY KEY(`statsDate`, `appId`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `daily_app_reels` (`statsDate` TEXT NOT NULL, `appId` TEXT NOT NULL, `count` INTEGER NOT NULL, `origin` TEXT NOT NULL, PRIMARY KEY(`statsDate`, `appId`, `origin`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `daily_tracking_coverage` (`statsDate` TEXT NOT NULL, `origin` TEXT NOT NULL, PRIMARY KEY(`statsDate`, `origin`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f54101042841739c5a03d6a23e32b7a3')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4b0a46858b0b077141ff90459f704db7')");
       }
 
       @Override
       public void dropAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS `daily_app_reels`");
+        db.execSQL("DROP TABLE IF EXISTS `daily_tracking_coverage`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -85,10 +87,11 @@ public final class ReelDatabase_Impl extends ReelDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsDailyAppReels = new HashMap<String, TableInfo.Column>(3);
+        final HashMap<String, TableInfo.Column> _columnsDailyAppReels = new HashMap<String, TableInfo.Column>(4);
         _columnsDailyAppReels.put("statsDate", new TableInfo.Column("statsDate", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsDailyAppReels.put("appId", new TableInfo.Column("appId", "TEXT", true, 2, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsDailyAppReels.put("count", new TableInfo.Column("count", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyAppReels.put("origin", new TableInfo.Column("origin", "TEXT", true, 3, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysDailyAppReels = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesDailyAppReels = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoDailyAppReels = new TableInfo("daily_app_reels", _columnsDailyAppReels, _foreignKeysDailyAppReels, _indicesDailyAppReels);
@@ -98,9 +101,21 @@ public final class ReelDatabase_Impl extends ReelDatabase {
                   + " Expected:\n" + _infoDailyAppReels + "\n"
                   + " Found:\n" + _existingDailyAppReels);
         }
+        final HashMap<String, TableInfo.Column> _columnsDailyTrackingCoverage = new HashMap<String, TableInfo.Column>(2);
+        _columnsDailyTrackingCoverage.put("statsDate", new TableInfo.Column("statsDate", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsDailyTrackingCoverage.put("origin", new TableInfo.Column("origin", "TEXT", true, 2, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysDailyTrackingCoverage = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesDailyTrackingCoverage = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoDailyTrackingCoverage = new TableInfo("daily_tracking_coverage", _columnsDailyTrackingCoverage, _foreignKeysDailyTrackingCoverage, _indicesDailyTrackingCoverage);
+        final TableInfo _existingDailyTrackingCoverage = TableInfo.read(db, "daily_tracking_coverage");
+        if (!_infoDailyTrackingCoverage.equals(_existingDailyTrackingCoverage)) {
+          return new RoomOpenHelper.ValidationResult(false, "daily_tracking_coverage(com.brainrot.android.dev.data.DailyTrackingCoverage).\n"
+                  + " Expected:\n" + _infoDailyTrackingCoverage + "\n"
+                  + " Found:\n" + _existingDailyTrackingCoverage);
+        }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "f54101042841739c5a03d6a23e32b7a3", "987e5cf0efee388eed2f959ace4e861f");
+    }, "4b0a46858b0b077141ff90459f704db7", "40830562b6faeb25eaa4e429f0455762");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -111,7 +126,7 @@ public final class ReelDatabase_Impl extends ReelDatabase {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "daily_app_reels");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "daily_app_reels","daily_tracking_coverage");
   }
 
   @Override
@@ -121,6 +136,7 @@ public final class ReelDatabase_Impl extends ReelDatabase {
     try {
       super.beginTransaction();
       _db.execSQL("DELETE FROM `daily_app_reels`");
+      _db.execSQL("DELETE FROM `daily_tracking_coverage`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
