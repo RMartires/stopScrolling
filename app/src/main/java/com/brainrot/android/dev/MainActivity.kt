@@ -4,39 +4,44 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.brainrot.android.dev.ui.screens.AnalyticsScreen
+import com.brainrot.android.dev.ui.screens.SettingsScreen
+import com.brainrot.android.dev.ui.screens.TodayScreen
 import com.brainrot.android.dev.ui.theme.StopScrollingTheme
 
 class MainActivity : ComponentActivity() {
+    private val repository: ReelRepository
+        get() = (application as DevApp).reelRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ReelStats.load(this)
         enableEdgeToEdge()
         setContent {
             StopScrollingTheme {
-                DevHomeScreen(
+                BrainPalApp(
+                    repository = repository,
+                    accessibilityEnabled = SettingsIntents.isAccessibilityEnabled(this),
+                    overlayEnabled = SettingsIntents.canDrawOverlays(this),
                     onOpenAccessibility = { startActivity(SettingsIntents.accessibilitySettings()) },
                     onOpenOverlay = { startActivity(SettingsIntents.overlaySettings(this)) },
                     onShowOverlay = { OverlayManager.show(this) },
-                    onReset = { ReelStats.resetToday(this) },
+                    onClearData = { repository.clearAll(this) },
                 )
             }
         }
@@ -46,76 +51,65 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         if (SettingsIntents.canDrawOverlays(this)) {
             OverlayManager.show(this)
+            repository.refreshOverlay(this)
         }
     }
 }
 
+private enum class Tab(val label: String) {
+    Today("Today"),
+    Analytics("Analytics"),
+    Settings("Setup"),
+}
+
 @Composable
-private fun DevHomeScreen(
+private fun BrainPalApp(
+    repository: ReelRepository,
+    accessibilityEnabled: Boolean,
+    overlayEnabled: Boolean,
     onOpenAccessibility: () -> Unit,
     onOpenOverlay: () -> Unit,
     onShowOverlay: () -> Unit,
-    onReset: () -> Unit,
+    onClearData: () -> Unit,
 ) {
-    val reelsToday by ReelStats.reelsToday.collectAsStateWithLifecycle()
-    val foreground by ReelStats.foregroundApp.collectAsStateWithLifecycle()
+    var tab by rememberSaveable { mutableStateOf(Tab.Today) }
 
-    Scaffold { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = "BrainPal Dev",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Tracks YouTube Shorts swipes via Accessibility (dev heuristic)",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(28.dp))
-            Text(
-                text = reelsToday.toString(),
-                style = MaterialTheme.typography.displayLarge,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                text = "Reels today",
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "Foreground: ${foreground ?: "unknown"}",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(onClick = onOpenAccessibility, modifier = Modifier.fillMaxWidth()) {
-                Text("1. Enable Accessibility service")
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    selected = tab == Tab.Today,
+                    onClick = { tab = Tab.Today },
+                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
+                    label = { Text(Tab.Today.label) },
+                )
+                NavigationBarItem(
+                    selected = tab == Tab.Analytics,
+                    onClick = { tab = Tab.Analytics },
+                    icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
+                    label = { Text(Tab.Analytics.label) },
+                )
+                NavigationBarItem(
+                    selected = tab == Tab.Settings,
+                    onClick = { tab = Tab.Settings },
+                    icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                    label = { Text(Tab.Settings.label) },
+                )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(onClick = onOpenOverlay, modifier = Modifier.fillMaxWidth()) {
-                Text("2. Allow display over other apps")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(onClick = onShowOverlay, modifier = Modifier.fillMaxWidth()) {
-                Text("Show reel counter bubble")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(onClick = onReset, modifier = Modifier.fillMaxWidth()) {
-                Text("Reset count")
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Then open YouTube Shorts and swipe. The purple bubble should increment.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+        },
+    ) { padding ->
+        val modifier = Modifier.padding(padding)
+        when (tab) {
+            Tab.Today -> TodayScreen(repository = repository, modifier = modifier)
+            Tab.Analytics -> AnalyticsScreen(repository = repository, modifier = modifier)
+            Tab.Settings -> SettingsScreen(
+                modifier = modifier,
+                accessibilityEnabled = accessibilityEnabled,
+                overlayEnabled = overlayEnabled,
+                onOpenAccessibility = onOpenAccessibility,
+                onOpenOverlay = onOpenOverlay,
+                onShowOverlay = onShowOverlay,
+                onClearData = onClearData,
             )
         }
     }

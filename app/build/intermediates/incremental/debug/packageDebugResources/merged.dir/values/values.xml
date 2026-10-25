@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">Counts vertical swipes in YouTube (dev build). Required for reel tracking while you use other apps.</string>
+    <string name="accessibility_service_label">BrainPal Dev reel tracker</string>
+    <string name="app_name">BrainPal Dev</string>
+    <style name="Theme.StopScrolling" parent="android:Theme.Material.Light.NoActionBar"/>
+</resources>

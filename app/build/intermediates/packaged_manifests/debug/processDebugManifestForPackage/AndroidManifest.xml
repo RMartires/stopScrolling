@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.brainrot.android.dev"
     android:versionCode="1"
-    android:versionName="0.1.0-dev" >
+    android:versionName="0.2.0-dev" >
 
     <uses-sdk
         android:minSdkVersion="32"
@@ -18,6 +18,7 @@
     <uses-permission android:name="com.brainrot.android.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 
     <application
+        android:name="com.brainrot.android.dev.DevApp"
         android:allowBackup="true"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:debuggable="true"
@@ -69,6 +70,11 @@
                 android:name="androidx.profileinstaller.ProfileInstallerInitializer"
                 android:value="androidx.startup" />
         </provider>
+
+        <service
+            android:name="androidx.room.MultiInstanceInvalidationService"
+            android:directBootAware="true"
+            android:exported="false" />
 
         <receiver
             android:name="androidx.profileinstaller.ProfileInstallReceiver"

@@ -1,14 +1,10 @@
 [
     {
-        "merged": "/private/var/folders/m7/vsf2v2_52hddrx55j2y2cws00000gn/T/cursor-sandbox-cache/3c71fafdf095b2c78b0618876bd4db27/gradle/daemon/9.8.2/com.brainrot.android.dev.app-debug-4:/xml_accessibility_service_config.xml.flat",
-        "source": "/private/var/folders/m7/vsf2v2_52hddrx55j2y2cws00000gn/T/cursor-sandbox-cache/3c71fafdf095b2c78b0618876bd4db27/gradle/daemon/9.8.2/com.brainrot.android.dev.app-main-6:/xml/accessibility_service_config.xml"
-    },
-    {
         "merged": "com.brainrot.android.dev.app-debug-4:/xml_accessibility_service_config.xml.flat",
         "source": "com.brainrot.android.dev.app-main-6:/xml/accessibility_service_config.xml"
     },
     {
-        "merged": "/private/var/folders/m7/vsf2v2_52hddrx55j2y2cws00000gn/T/cursor-sandbox-cache/3c71fafdf095b2c78b0618876bd4db27/gradle/daemon/9.8.2/com.brainrot.android.dev.app-debug-4:/drawable_ic_launcher.xml.flat",
-        "source": "/private/var/folders/m7/vsf2v2_52hddrx55j2y2cws00000gn/T/cursor-sandbox-cache/3c71fafdf095b2c78b0618876bd4db27/gradle/daemon/9.8.2/com.brainrot.android.dev.app-main-6:/drawable/ic_launcher.xml"
+        "merged": "com.brainrot.android.dev.app-debug-4:/drawable_ic_launcher.xml.flat",
+        "source": "com.brainrot.android.dev.app-main-6:/drawable/ic_launcher.xml"
     }
 ]

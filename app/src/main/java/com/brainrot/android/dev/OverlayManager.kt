@@ -16,11 +16,11 @@ object OverlayManager {
     fun show(context: Context) {
         if (!SettingsIntents.canDrawOverlays(context)) return
         mainHandler.post {
+            val appContext = context.applicationContext
             if (overlayView != null) {
-                refresh(context)
+                (appContext as? DevApp)?.reelRepository?.refreshOverlay(context)
                 return@post
             }
-            val appContext = context.applicationContext
             windowManager = appContext.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val view = TextView(appContext).apply {
                 textSize = 14f
@@ -42,7 +42,7 @@ object OverlayManager {
             }
             windowManager?.addView(view, params)
             overlayView = view
-            refresh(context)
+            (appContext as? DevApp)?.reelRepository?.refreshOverlay(context)
         }
     }
 
@@ -53,11 +53,9 @@ object OverlayManager {
         }
     }
 
-    fun refresh(context: Context, count: Int? = null) {
-        val value = count ?: context.getSharedPreferences("reel_stats", Context.MODE_PRIVATE)
-            .getInt("reels_today", 0)
+    fun refresh(context: Context, count: Int) {
         mainHandler.post {
-            overlayView?.text = "Reels: $value"
+            overlayView?.text = "Reels: $count"
         }
     }
 }
